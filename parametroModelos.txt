@@ -1,0 +1,45 @@
+
+Parametros modelo DFA
+- Abordagem One-vs-All
+- LinearDiscriminantAnalysis do sklearn
+- parametros
+(solver='svd', shrinkage=None, priors=None, n_components=None, store_covariance=False, tol=0.0001
+	solver => ‘svd’: Singular value decomposition (default). Does not compute the covariance matrix, therefore this solver is recommended for data with a large number of features.
+	priors => class priors (optional)
+	n_components => Number of components (< n_classes - 1) for dimensionality reduction.
+	store_covariance => Additionally compute class covariance matrix (default False).
+	tol => Threshold used for rank estimation in SVD solver.
+
+Parametros MLP
+- entrada : imagem 56x92
+- tamanho de cada batch: 50
+- estrutura da rede
+	Input layer, X : imagens grayscales 56x92
+	Hidden layer, com ativação Relu (256 features) X*W1 + b1
+	Hidden layer, com ativação Relu (256 features) X*W2 + b2
+	Output layer, (8 classes) X*W3 + b3	
+	Softmax
+	Otimizador: Adam
+	learning_rate : 0.01
+- Validação cruzada com k=10
+- 200 épocas de treinamento para cada fold
+
+Parametros CNN
+- entrada : imagem 56x92
+- tamanho de cada batch: 50
+- estrutura da rede
+	Input layer, X : imagens grayscales 56x92
+	Convolutional layer, 5x5 filters size, 1 input, 32 outputs
+	Maxpolling layer, kernel_size=2x2,padding='SAME'
+	Convolutional layer, 5x5 filters size, 32 inputs, 64 outputs
+	Maxpolling layer, kernel_size=2x2,padding='SAME'
+	Fully connected layer, 14*23*64 inputs, 1024 outputs
+	Dropout layer, p=0.75
+	Output layer, (8 classes) 
+	Softmax
+	Otimizador: Adam
+	learning_rate : 0.001
+- Validação cruzada com k=10
+- 200 épocas de treinamento para cada fold
+
+
