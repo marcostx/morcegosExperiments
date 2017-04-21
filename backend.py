@@ -1,19 +1,4 @@
-"""
 
-	Este modulo realiza o backend responsavel por realizar:
-	- input: audio wav
-	- quebrar em pontos de interesse
-	- realizar crop nos audios
-	- transformar crops em imagens
-	- escolher as imagens que realmente sao sons de morcegos
-	- realizar crop das imagens em grayscale
-	- classificar cada uma das imagens e pegar como predicao a media
-	
-
-	* primeiro de tudo : gerar um classificador que distingua entre 
-	som de morcego e nao som de morcego
-
-"""
 
 import warnings #TODO corrigir future warning
 import wave
@@ -27,7 +12,7 @@ import matplotlib.pyplot as plt
 import scipy.io.wavfile as wavfile
 warnings.filterwarnings("ignore") #TODO corrigir future warning
 
-def interesting_points_enconter(filestring, freq_min, freq_max, pot_min):
+def interesting_points_finder(filestring, freq_min, freq_max, pot_min):
 
    nomewav = os.path.basename(filestring)
    filename = os.path.splitext(nomewav)[0]
@@ -150,10 +135,9 @@ def raw_specs(filestring):
 
    if (filestring.find('wav') > 0 or filestring.find('WAV') > 0):
       nomewav = os.path.basename(filestring)
-      pathwav = os.path.dirname(filestring)
       filename = os.path.splitext(nomewav)[0]
 
-      maindir = pathwav+"/"+filename+"/"
+      maindir = "temp/"+filename+"/"
       for fnamefiles in os.listdir(maindir):
          if os.path.isdir(maindir + fnamefiles) or os.stat(maindir+fnamefiles).st_size == 0:
                print "not a file."
@@ -185,10 +169,9 @@ def crop_specs(filestring):
 
    
    nomewav = os.path.basename(filestring)
-   pathwav = os.path.dirname(filestring)
    filename = os.path.splitext(nomewav)[0]
 
-   maindir = pathwav+"/"+filename+"/Spec/"
+   maindir = "temp/"+filename+"/Spec/"
 
    for fname in sorted(os.listdir(maindir)):
        if fname.find('png') > 0 and fname[0] != 'c':
@@ -208,6 +191,16 @@ def crop_specs(filestring):
            cv2.imwrite(figname,imgr)
    print "Crop realizado."
 
+def img2array(image):
+    vector = []
+    for line in image:
+        for column in line:
+            vector.append("%4.3f"%(float(column[0])/255))
+    return np.array(vector)
 
-interesting_points_enconter(sys.argv[1], 15000, 140000, 200.0)
-time_stamps_cropper(sys.argv[1])
+#interesting_points_enconter(sys.argv[1], 15000, 140000, 200.0)
+#time_stamps_cropper(sys.argv[1])
+#raw_specs(sys.argv[1])
+#crop_specs(sys.argv[1])
+
+

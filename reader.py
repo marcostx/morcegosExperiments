@@ -69,6 +69,7 @@ def parseData():
         arquivos = X[classVal].split(',')
         
         if len(arquivos) > 12:
+
             for val in arquivos:
                 img_ = cv2.imread(val)
                 img_ = img2array(img_)

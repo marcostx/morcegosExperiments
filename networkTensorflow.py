@@ -14,6 +14,9 @@ from reader import parseData
 
 seed = 128
 rng = np.random.RandomState(seed)
+model_path = "tempModelsCNNFolds/model"
+best_classifier=None
+mean_metrics = []
 
 X_, y_ = parseData()
 
@@ -21,9 +24,6 @@ X_, y_ = parseData()
 def dense_to_one_hot(labels_dense, num_classes=8):
     """Convert class labels from scalars to one-hot vectors"""
     num_labels = labels_dense.shape[0]
-    #index_offset = np.arange(num_labels) * num_classes
-    #labels_one_hot = np.zeros((num_labels, num_classes))
-    #labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
     labels_one_hot = np.zeros((num_labels, num_classes))
     labels_one_hot[np.arange(num_labels), labels_dense] = 1
     
@@ -115,7 +115,7 @@ weights = {
     'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
     # 5x5 conv, 32 inputs, 64 outputs
     'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64])),
-    # fully connected, 7*7*64 inputs, 1024 outputs
+    # fully connected, 14*23*64 inputs, 1024 outputs
     'wd1': tf.Variable(tf.random_normal([14*23*64, 1024])),
     # 1024 inputs, 10 outputs (class prediction)
     'out': tf.Variable(tf.random_normal([1024, n_classes]))
@@ -142,6 +142,9 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # Initializing the variables
 init = tf.global_variables_initializer()
+
+# 'Saver' op to save and restore all the variables
+#saver = tf.train.Saver()
 
 skf = StratifiedKFold(n_splits=10, shuffle=True)
 number = 0
@@ -177,12 +180,16 @@ for train_index, test_index in skf.split(X_, y_):
             #print "Epoch:", (epoch+1), "cost =", "{:.10f}".format(avg_cost)
         
         print "\nTraining complete!"
-    
+        # Save model weights to disk
+        #save_path = saver.save(sess, model_path +str(number) + ".ckpt")
+        #print("Model saved in file: %s" % save_path)
 
         # find predictions on val set
         predict = tf.argmax(pred, 1)
         predictions = predict.eval({x: X_test.reshape(-1, n_input), keep_prob: 1.})
         
+        mean_metrics.append((accuracy_score(y_test,predictions)+ precision_score(y_test,predictions, average='weighted')+ 
+            recall_score(y_test,predictions, average='weighted')+ f1_score(y_test,predictions, average='weighted'))/4)
         print("accuracy : ", accuracy_score(y_test, predictions ) )
         print("precision : ", precision_score(y_test, predictions, average='weighted' ) )
         print("recall : ", recall_score(y_test, predictions,average='weighted' ) )
@@ -190,3 +197,5 @@ for train_index, test_index in skf.split(X_, y_):
         print("\n")
     
     number+=1
+
+print(np.argmax(mean_metrics))  
